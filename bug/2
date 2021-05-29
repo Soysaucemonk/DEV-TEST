@@ -1,0 +1,56 @@
+  valueCurrying: null, // 计算总估值的柯里化函数
+      hykCurrying: null, // 计算参与分红数量的柯里化函数
+      perCurrying: null, // 计算每份分红的柯里化函数
+    }
+  },
+  computed:{
+     ...mapState({
+      // 箭头函数可使代码更简练
+      scatter: state => state.app.scatter,
+      baseConfig: state => state.sys.baseConfig, // 基础配置 - 默认为{}
+    }),
+  },
+  watch: {
+    showBonus(newVal) {
+      if(!newVal) {
+        return;
+      }
+      this.handleStartGetBalan();
+      this.handleStartTotalHyk()
+    }
+  },
+  mounted() {
+    this.handleStartGetBalan();
+    this.handleStartTotalHyk()
+  },
+  beforeDestroy() {
+    clearTimeout(this.timer);
+  },
+  methods: {
+    handleToBrowser() {
+      toBrowser(this.baseConfig.bonusAccount, 'eos', 'account');
+    },
+    handleInitCurrying() {
+      this.valueCurrying = crazyCurryingHelper(this.handleTotalValue);
+      this.hykCurrying = crazyCurryingHelper(this.handleBonusCount);
+      this.perCurrying = crazyCurryingHelper(this.handlePerBonus);
+    },
+    handleStartTotalHyk() {
+      this.handleGetHykStats();
+      this.handleGetBalance('HYK');
+      this.handleGetBalance('HYK Swap')
+      this.handleGetBalance('HYK Funds');
+    },
+    handleStartGetBalan() {
+      clearTimeout(this.timer);
+      this.handleInitCurrying();
+      this.handleGetBalance();
+      this.handleGetBalance('next')
+      this.handleGetPrice();
+      // this.timer = setTimeout(() => {
+      //   this.handleGetBalance();
+      //   this.handleGetBalance('next')
+      //   this.handleGetPrice();
+      // }, 10000);
+    },
+    //
