@@ -1,0 +1,58 @@
+<template>
+  <el-dialog
+    class="dialog"
+    width="320px"
+    :visible.sync="showBonus">
+    <div class="bonus" v-if="showBonus">
+      <div class="title">{{ $t('hyk.stock') }}</div>
+      <div class="list">
+        <div>
+          <span>{{ $t('hyk.bonusAcc') }}</span>
+          <span class="num" @click="handleToBrowser">{{ baseConfig.bonusAccount }}</span>
+        </div>
+        <div class='bonusTotal'>
+          <span>{{ $t('hyk.totalBonus') }}</span>
+          <span class="num">{{ balanceEos }} EOS</span>
+        </div>
+        <div class="balan">
+          <span></span>
+          <span class="num">{{ balanceJin }} JIN</span>
+        </div>
+        <div class="totalValue">
+          <span>{{ $t('hyk.totalVal') }}</span>
+          <span class="num">{{ totalValue }} USD</span>
+        </div>
+        <div>
+          <span>{{ $t('hyk.holdings') }}</span>
+          <span class="num">{{ totalHykBonus }} HYK</span>
+        </div>
+        <div>
+          <span>{{ $t('hyk.perBonus') }}</span>
+          <span class="num green">{{ perBonus }} USD</span>
+        </div>
+      </div>
+    </div>
+  </el-dialog>
+</template>
+
+<script>
+import axios from 'axios';
+import { mapState } from 'vuex';
+import { EosModel } from '@/utils/eos';
+import { crazyCurryingHelper, toFixed, getPrice, toBrowser } from "@/utils/public";
+export default {
+  name: 'bonus',
+  data() {
+    return {
+      showBonus: false,
+      balanceEos: '0.0000',
+      balanceJin: '0.0000',
+      totalValue: '0.0000', // JIN = USD  |  EOS = USD * price
+      sellHykAccBalan: '0.0000', // 限量卖HYK账户
+      swapHykAccBalan: '0.0000', // swap合约内 HYK余额
+      jinFundsBalan: '0.0000', // 资金账户
+      totalHykBonus: '0.0000', // 参与分红的HYK数量
+      supply: '0.0000', // 流通量
+      perBonus: '0.0000',
+      price: '0.0001',
+      timer: null,
